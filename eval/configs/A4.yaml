@@ -1,0 +1,13 @@
+id: A4
+description: C2 without runbook search
+architecture: multi
+critic: true
+structural_checks: true
+semantic_verifier: true
+runbook_search: false
+gate: true
+runs_per_case: 1
+model: ${LLM_MODEL}
+temperature: 0
+caps: {tool_calls: 25, tokens: 150000, wall_seconds: 600}
+seeds: [1, 2, 3]

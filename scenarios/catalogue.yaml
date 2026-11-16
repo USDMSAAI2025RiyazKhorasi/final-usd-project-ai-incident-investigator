@@ -1,0 +1,96 @@
+# Fault catalogue (Jira AII-4, AII-5). Frozen at Gate 1 by Engineer A.
+# Each fault is a switch in the target app. held_out faults appear only in the test split.
+# expected_evidence = signatures the scorer matches against cited evidence (evidence precision/recall).
+
+faults:
+  memory_leak:
+    targets: [orders]
+    cause_type: resource_exhaustion
+    alert: HighMemory
+    expected_evidence: ["metric:container_memory_bytes", "log:OOMKilled"]
+    correct_fix: {action: restart, target: "{service}"}
+
+  slow_query:
+    targets: [inventory]
+    cause_type: database_performance
+    alert: HighLatency
+    expected_evidence: ["metric:db_query_seconds", "log:slow query"]
+    correct_fix: {action: rollback, target: "{service}"}
+
+  bad_config_deploy:
+    targets: [payments, orders]
+    cause_type: config_change
+    alert: HighErrorRate
+    expected_evidence: ["deploy:{deploy_id}", "log:timeout after"]
+    correct_fix: {action: rollback, target: "{service}"}
+
+  buggy_code_deploy:
+    targets: [gateway, inventory]
+    cause_type: code_change
+    alert: HighErrorRate
+    expected_evidence: ["deploy:{deploy_id}", "log:Traceback"]
+    correct_fix: {action: rollback, target: "{service}"}
+
+  dependency_down:
+    targets: [notifications]
+    cause_type: dependency_unavailable
+    alert: HighErrorRate
+    expected_evidence: ["log:Connection refused", "metric:dependency_up"]
+    correct_fix: {action: restart, target: redis}
+
+  pool_exhausted:
+    targets: [orders]
+    cause_type: resource_exhaustion
+    alert: HighLatency
+    expected_evidence: ["metric:db_pool_in_use", "log:pool timeout"]
+    correct_fix: {action: scale, target: "{service}"}
+
+  cpu_saturation:
+    targets: [inventory, payments]
+    cause_type: resource_exhaustion
+    alert: HighLatency
+    expected_evidence: ["metric:process_cpu_seconds_total"]
+    correct_fix: {action: restart, target: "{service}"}
+
+  cascading_failure:
+    targets: [payments]
+    cause_type: resource_exhaustion
+    alert: HighErrorRate
+    alert_on: gateway            # symptom appears downstream of the cause
+    always_hard: true
+    expected_evidence: ["metric:http_request_duration_seconds", "log:upstream timeout"]
+    correct_fix: {action: restart, target: "{service}"}
+
+  expired_credential:
+    targets: [payments]
+    cause_type: credential_failure
+    alert: HighErrorRate
+    held_out: true
+    expected_evidence: ["log:401 Unauthorized"]
+    correct_fix: {action: rollback, target: "{service}"}
+
+  disk_full:
+    targets: [notifications]
+    cause_type: resource_exhaustion
+    alert: ServiceUnhealthy
+    held_out: true
+    expected_evidence: ["log:No space left on device", "metric:disk_free_bytes"]
+    correct_fix: {action: restart, target: "{service}"}
+
+# Noise templates set the difficulty stratum.
+noise:
+  none:               {difficulty: easy}
+  background_errors:  {difficulty: medium}
+  unrelated_deploy:   {difficulty: medium}
+  downstream_alert:   {difficulty: hard}   # alert fires on a caller of the faulty service
+  concurrent_anomaly: {difficulty: hard}   # an unrelated service misbehaves near the fault time
+
+# Which service calls which (used for downstream_alert and get_service_graph).
+callers:
+  orders: gateway
+  payments: orders
+  inventory: orders
+  notifications: orders
+  gateway: null
+
+intensity: [low, medium, high]

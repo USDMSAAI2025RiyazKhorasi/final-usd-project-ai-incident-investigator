@@ -1,0 +1,13 @@
+id: C2
+description: Full system (system under test)
+architecture: multi
+critic: true
+structural_checks: true
+semantic_verifier: true
+runbook_search: true
+gate: true
+runs_per_case: 3
+model: ${LLM_MODEL}
+temperature: 0
+caps: {tool_calls: 25, tokens: 150000, wall_seconds: 600}
+seeds: [1, 2, 3]

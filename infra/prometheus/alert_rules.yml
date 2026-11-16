@@ -1,0 +1,24 @@
+# The four alerts in scenarios/catalogue.yaml, evaluated per service.
+groups:
+  - name: incidents
+    rules:
+      - alert: HighErrorRate
+        expr: sum by (service) (rate(http_requests_total{status="5xx"}[1m])) / sum by (service) (rate(http_requests_total[1m])) > 0.05
+        for: 30s
+        labels: {severity: critical}
+        annotations: {summary: "{{ $labels.service }} 5xx ratio above 5% for 30s"}
+      - alert: HighLatency
+        expr: max by (service) (http_request_duration_seconds{quantile="0.95"}) > 1
+        for: 30s
+        labels: {severity: critical}
+        annotations: {summary: "{{ $labels.service }} p95 latency above 1s for 30s"}
+      - alert: HighMemory
+        expr: max by (service) (container_memory_bytes) > 0.85 * 512 * 1024 * 1024
+        for: 15s
+        labels: {severity: critical}
+        annotations: {summary: "{{ $labels.service }} memory above 85% of limit"}
+      - alert: ServiceUnhealthy
+        expr: min by (service) (disk_free_bytes) < 0.15 * 256 * 1024 * 1024
+        for: 15s
+        labels: {severity: critical}
+        annotations: {summary: "{{ $labels.service }} health check failing"}

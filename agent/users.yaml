@@ -1,0 +1,5 @@
+# Who may do what (roles are defined in agent/policy.yaml). Demo users; replace with your team.
+alice: approver
+bob: responder
+carol: viewer
+investigator: responder      # the system account that proposes actions

@@ -1,0 +1,13 @@
+id: A3
+description: C2 with no evidence validation
+architecture: multi
+critic: true
+structural_checks: false
+semantic_verifier: false
+runbook_search: true
+gate: true
+runs_per_case: 1
+model: ${LLM_MODEL}
+temperature: 0
+caps: {tool_calls: 25, tokens: 150000, wall_seconds: 600}
+seeds: [1, 2, 3]

@@ -1,0 +1,13 @@
+id: C0
+description: Single ReAct agent, all tools (baseline)
+architecture: single
+critic: false
+structural_checks: false
+semantic_verifier: false
+runbook_search: true
+gate: false
+runs_per_case: 3
+model: ${LLM_MODEL}
+temperature: 0
+caps: {tool_calls: 25, tokens: 150000, wall_seconds: 600}
+seeds: [1, 2, 3]

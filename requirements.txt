@@ -1,0 +1,12 @@
+# Core: agents, tools, dataset, evaluation (Python 3.10+)
+pydantic>=2.6
+pyyaml>=6
+numpy>=1.24
+matplotlib>=3.7
+pytest>=8
+# Web: backend API and dashboard
+fastapi>=0.110
+uvicorn>=0.29
+httpx>=0.27
+streamlit>=1.35
+pandas>=2.0

@@ -1,0 +1,35 @@
+# Guardrail settings (Jira AII-7). Recorded with every run.
+# Values marked TUNE are set on the dev split only, then frozen at tag freeze-v1.
+
+caps:
+  tool_calls: 25
+  tokens: 150000           # per-investigation caps live in eval/configs; this is the default
+  wall_seconds: 300
+  critic_rounds: 4
+
+evidence:
+  window_margin_seconds: 300   # TUNE: how far before the alert window evidence may start
+  require_grounded_values: true
+
+critic:
+  samples_for_consistency: 3
+  sample_temperature: 0.7
+
+gate:
+  signal: verbal               # TUNE: verbal | self_consistency | evidence_margin | combined (set by eval.calibrate)
+  threshold: 0.6               # TUNE: chosen on dev for target_risk
+  target_risk: 0.15
+  calibration: null            # filled by eval/calibrate.py: coefficients of the combined model
+
+actions:
+  allowlist: [restart, rollback, scale]
+  approval_ttl_seconds: 900
+  roles:
+    viewer: [read]
+    responder: [read, propose]
+    approver: [read, approve]
+  verification_seconds: 300
+
+tools:
+  read_only: [query_metrics, search_logs, list_deploys, get_commit_diff, get_service_graph, search_runbooks]
+  write: [restart_service, rollback_deploy, scale_service]   # executor only, never agents

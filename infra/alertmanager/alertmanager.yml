@@ -1,0 +1,4 @@
+route: {receiver: investigator, group_by: [alertname, service], group_wait: 5s, repeat_interval: 1h}
+receivers:
+  - name: investigator
+    webhook_configs: [{url: "http://host.docker.internal:8080/alerts", send_resolved: true}]
